@@ -35,21 +35,21 @@ class CommentViewSet(viewsets.ModelViewSet):
                           IsAuthenticatedOrReadOnly)
     serializer_class = CommentSerializer
 
-    def get_queryset(self):
+    def get_post(self):
         pk = self.kwargs.get("post_id")
-        post = get_object_or_404(Post, pk=pk)
-        comments = post.comments.all()
-        return comments
+        return get_object_or_404(Post, pk=pk)
+
+    def get_queryset(self):
+        post = self.get_post()
+        return post.comments.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
-                        post=get_object_or_404(Post,
-                                               id=self.kwargs.get("post_id")))
+                        post=self.get_post())
 
     def perform_update(self, serializer):
         serializer.save(author=self.request.user,
-                        post=get_object_or_404(Post,
-                                               id=self.kwargs.get("post_id")))
+                        post=self.get_post())
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
